@@ -28,7 +28,7 @@ SELECT *
 FROM layoffs;
 ```
 
-1. Criamos uma CTE e adicionamos uma nova coluna enumerada com o `ROW_NUMBER( )`, permitindo identificar quais registros representam a primeira ocorrência e quais são duplicatas:
+2. Criamos uma CTE e adicionamos uma nova coluna enumerada com o `ROW_NUMBER( )`, permitindo identificar quais registros representam a primeira ocorrência e quais são duplicatas:
 
 ```sql
 WITH duplicate_cte AS
@@ -47,7 +47,7 @@ WHERE row_num > 1;
 `ROW_NUMBER( )` - Enumera as linhas de cada grupo;
 `PARTITION BY` - Define as colunas que serão levadas em conta na comparação dos dados iguais, como se dissesse “Agrupe todas as linhas que possuem exatamente os mesmos valores nessas colunas.”
 
-1. Também é adicionada uma coluna enumerada para identificar os registros duplicados:
+3. Também é adicionada uma coluna enumerada para identificar os registros duplicados:
 
 ```sql
 CREATE TABLE `layoffs_clean` (
@@ -71,7 +71,7 @@ PARTITION BY company, location, industry, total_laid_off, percentage_laid_off,
 FROM layoffs_staging;
 ```
 
-1. Por final, as duplicatas são identificadas, removidas e o conjunto de dados limpo é obtido.
+4. Por final, as duplicatas são identificadas, removidas e o conjunto de dados limpo é obtido.
 
 ```sql
 SELECT *
@@ -100,7 +100,7 @@ UPDATE layoffs_clean
 SET company = TRIM(company);
 ```
 
-1. Padronizamos o nome das categorias da coluna “*industry*” que se encontravam repetidas em 3 variações:
+2. Padronizamos o nome das categorias da coluna “*industry*” que se encontravam repetidas em 3 variações:
 
 ```sql
 SELECT DISTINCT industry
@@ -114,7 +114,7 @@ SET industry = 'Crypto'
 WHERE industry LIKE 'Crypto%';
 ```
 
-1. Removemos pontuação desnecessária da coluna “*country*”:
+3. Removemos pontuação desnecessária da coluna “*country*”:
 
 ```sql
 SELECT DISTINCT country
@@ -128,7 +128,7 @@ SET country = TRIM(TRAILING '.' FROM country)
 WHERE country LIKE 'United States%';
 ```
 
-1. A coluna estava armazenada como *string.* Utilizamos a função `STR_TO_DATE()` para converter os valores para o formato de data reconhecido pelo MySQL e, posteriormente, alteramos o tipo da coluna para `DATE`: 
+4. A coluna estava armazenada como *string.* Utilizamos a função `STR_TO_DATE()` para converter os valores para o formato de data reconhecido pelo MySQL e, posteriormente, alteramos o tipo da coluna para `DATE`: 
 
 ```sql
 SELECT `date` FROM layoffs_clean;
@@ -160,7 +160,7 @@ SET industry = NULL
 WHERE industry = '';
 ```
 
-1. Como uma mesma empresa pode aparecer diversas vezes na base, utilizamos um *self join* para localizar registros da mesma empresa que possuíam o campo “*industry”* preenchido e utilizá-los para completar os registros onde essa informação estava ausente:
+2. Como uma mesma empresa pode aparecer diversas vezes na base, utilizamos um *self join* para localizar registros da mesma empresa que possuíam o campo “*industry”* preenchido e utilizá-los para completar os registros onde essa informação estava ausente:
 
 ```sql
 SELECT t1.industry, t2.industry
@@ -207,7 +207,7 @@ WHERE total_laid_off  IS NULL
 AND percentage_laid_off IS NULL;
 ```
 
-1. Como a coluna `row_num` foi criada apenas para auxiliar na identificação das duplicatas, ela não possui utilidade para análises futuras e pode ser removida da tabela final:
+2. Como a coluna `row_num` foi criada apenas para auxiliar na identificação das duplicatas, ela não possui utilidade para análises futuras e pode ser removida da tabela final:
 
 ```sql
 ALTER TABLE layoffs_clean
