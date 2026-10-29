@@ -6,7 +6,7 @@ O dataset contém informações sobre layoffs (demissões em massa) ocorridas em
 ## Objetivo
 O objetivo desse projeto foi aplicar técnicas de limpeza e padronização de dados utilizando o SQL para preparar o dataset para análises futuras.
 
-Começamos importando os dados:
+Começo importando os dados:
 
 1. Criar novo schema;
 2. “Table Data Import Wizard”;
@@ -14,7 +14,7 @@ Começamos importando os dados:
 
 # Removendo Duplicatas
 
-1. Criamos uma cópia da estrutura da tabela e inserimos os dados nela, sendo isso mais seguro na manipulação e limpeza de dados (evita estragar dados originais, permite testar transformações, segue as boas práticas):
+1. Crio uma cópia da estrutura da tabela e inserimos os dados nela, sendo isso mais seguro na manipulação e limpeza de dados (evita estragar dados originais, permite testar transformações, segue as boas práticas):
 
 ```sql
 CREATE TABLE layoffs_staging
@@ -28,7 +28,7 @@ SELECT *
 FROM layoffs;
 ```
 
-2. Criamos uma CTE e adicionamos uma nova coluna enumerada com o `ROW_NUMBER( )`, permitindo identificar quais registros representam a primeira ocorrência e quais são duplicatas:
+2. Crio uma CTE e adiciono uma nova coluna enumerada com o `ROW_NUMBER( )`, permitindo identificar quais registros representam a primeira ocorrência e quais são duplicatas:
 
 ```sql
 WITH duplicate_cte AS
@@ -90,7 +90,7 @@ FROM layoffs_clean;
 
 # Padronização dos dados
 
-1. Removemos espaços em branco no começo e no final do nome da coluna “*company*” usando `TRIM( )`:
+1. Removo espaços em branco no começo e no final do nome da coluna “*company*” usando `TRIM( )`:
 
 ```sql
 SELECT DISTINCT company 
@@ -100,7 +100,7 @@ UPDATE layoffs_clean
 SET company = TRIM(company);
 ```
 
-2. Padronizamos o nome das categorias da coluna “*industry*” que se encontravam repetidas em 3 variações:
+2. Padronizo o nome das categorias da coluna “*industry*” que se encontravam repetidas em 3 variações:
 
 ```sql
 SELECT DISTINCT industry
@@ -114,7 +114,7 @@ SET industry = 'Crypto'
 WHERE industry LIKE 'Crypto%';
 ```
 
-3. Removemos pontuação desnecessária da coluna “*country*”:
+3. Removo pontuação desnecessária da coluna “*country*”:
 
 ```sql
 SELECT DISTINCT country
@@ -128,7 +128,7 @@ SET country = TRIM(TRAILING '.' FROM country)
 WHERE country LIKE 'United States%';
 ```
 
-4. A coluna estava armazenada como *string.* Utilizamos a função `STR_TO_DATE()` para converter os valores para o formato de data reconhecido pelo MySQL e, posteriormente, alteramos o tipo da coluna para `DATE`: 
+4. A coluna estava armazenada como *string.* Utilizo a função `STR_TO_DATE()` para converter os valores para o formato de data reconhecido pelo MySQL e, posteriormente, altero o tipo da coluna para `DATE`: 
 
 ```sql
 SELECT `date` FROM layoffs_clean;
@@ -148,7 +148,7 @@ MODIFY COLUMN `date` DATE;
 
 # Preenchimento de valores nulos
 
-1. Identificamos valores em branco na coluna “*industry”* os os transformamos em valores nulos:
+1. Identifico valores em branco na coluna “*industry”* e os tranformo em valores nulos:
 
 ```sql
 SELECT DISTINCT industry
@@ -160,7 +160,7 @@ SET industry = NULL
 WHERE industry = '';
 ```
 
-2. Como uma mesma empresa pode aparecer diversas vezes na base, utilizamos um *self join* para localizar registros da mesma empresa que possuíam o campo “*industry”* preenchido e utilizá-los para completar os registros onde essa informação estava ausente:
+2. Como uma mesma empresa pode aparecer diversas vezes na base, utilizo um *self join* para localizar registros da mesma empresa que possuíam o campo “*industry”* preenchido e utilizá-los para completar os registros onde essa informação estava ausente:
 
 ```sql
 SELECT t1.industry, t2.industry
@@ -193,7 +193,7 @@ Uma empresa ainda possui o campo de setor não preenchido. Como não há registr
 
 # Remover dados desnecessários
 
-1. Removemos entradas onde as duas métricas de demissões estão vazias:
+1. Removo entradas onde as duas métricas de demissões estão vazias:
 
 ```sql
 SELECT *
